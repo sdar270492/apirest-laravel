@@ -42,7 +42,7 @@ class ClientesController extends Controller
                     "detalle" => "registro con errores"
                 );
         
-                echo json_encode($json, true);
+                return json_encode($json, true);
             } else {
                 $id_cliente = Hash::make($datos["primer_nombre"].$datos["primer_apellido"].$datos["email"]);
                 $llave_secreta = Hash::make($datos["email"].$datos["primer_apellido"].$datos["primer_nombre"], ['rounds' => 12]);
@@ -51,15 +51,15 @@ class ClientesController extends Controller
                 $cliente->primer_nombre = $datos['primer_nombre'];
                 $cliente->primer_apellido = $datos['primer_apellido'];
                 $cliente->email = $datos['email'];
-                $cliente->id_cliente = $id_cliente;
-                $cliente->llave_secreta = $llave_secreta;
+                $cliente->id_cliente = str_replace('$', '-', $id_cliente);
+                $cliente->llave_secreta = str_replace('$', '-', $llave_secreta);
 
                 $cliente->save();
 
                 $json = array(
                     "status" => 200,
                     "detalle" => "Registro exitoso, tome sus credenciales y guardelas",
-                    "credenciales" => array("id_cliente" => $id_cliente,"llave_secreta" => $llave_secreta)
+                    "credenciales" => array("id_cliente" => str_replace('$', '-', $id_cliente),"llave_secreta" => str_replace('$', '-', $llave_secreta))
                 );
 
                 return json_encode($json, true);
@@ -68,8 +68,10 @@ class ClientesController extends Controller
         } else {
             $json = array(
                 "status" => 404,
-                "detalle" => "registro con errores"
+                "detalle" => "Los registros no pueden estar vacíos"
             );
+
+            return json_encode($json, true);
         }
     }
 }

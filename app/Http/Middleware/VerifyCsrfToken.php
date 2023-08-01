@@ -19,6 +19,7 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        'http://apirest-laravel.com/registro'
+        'http://apirest-laravel.com/registro',
+        'http://apirest-laravel.com/cursos'
     ];
 }

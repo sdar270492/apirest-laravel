@@ -20,3 +20,4 @@
 // Rutas para definir todos los metodos HTTP
 Route::resource('/', 'ClientesController');
 Route::resource('/registro', 'ClientesController');
+Route::resource('/cursos', 'CursosController');
