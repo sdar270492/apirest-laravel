@@ -37,9 +37,12 @@ class ClientesController extends Controller
 
             // Si falla la validación
             if ($validator->fails()) {
+
+                $errors = $validator->errors();
+
                 $json = array(
                     "status" => 404,
-                    "detalle" => "registro con errores"
+                    "detalle" => $errors
                 );
         
                 return json_encode($json, true);
@@ -51,15 +54,15 @@ class ClientesController extends Controller
                 $cliente->primer_nombre = $datos['primer_nombre'];
                 $cliente->primer_apellido = $datos['primer_apellido'];
                 $cliente->email = $datos['email'];
-                $cliente->id_cliente = str_replace('$', '-', $id_cliente);
-                $cliente->llave_secreta = str_replace('$', '-', $llave_secreta);
+                $cliente->id_cliente = str_replace('$', 'a', $id_cliente);
+                $cliente->llave_secreta = str_replace('$', 'b', $llave_secreta);
 
                 $cliente->save();
 
                 $json = array(
                     "status" => 200,
                     "detalle" => "Registro exitoso, tome sus credenciales y guardelas",
-                    "credenciales" => array("id_cliente" => str_replace('$', '-', $id_cliente),"llave_secreta" => str_replace('$', '-', $llave_secreta))
+                    "credenciales" => array("id_cliente" => str_replace('$', 'a', $id_cliente),"llave_secreta" => str_replace('$', 'b', $llave_secreta))
                 );
 
                 return json_encode($json, true);

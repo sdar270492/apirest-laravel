@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Cursos;
 use App\Clientes;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class CursosController extends Controller
 {
@@ -20,8 +21,26 @@ class CursosController extends Controller
 
 
         foreach ($clientes as $key => $value) {
+            // echo '<pre>'; print_r($value["id_cliente"].":".$value["llave_secreta"]); echo '</pre>';
+            // echo '<pre>'; print_r(base64_encode($value["id_cliente"].":".$value["llave_secreta"])); echo '</pre>';
+            // echo '<pre>'; print_r($token); echo '</pre>';
+            // return;
             if ("Basic ".base64_encode($value["id_cliente"].":".$value["llave_secreta"])==$token) {
-                $cursos = Cursos::all();
+                // $cursos = Cursos::all();
+
+                if (isset($_GET["page"])) {
+                    $cursos = DB::table('cursos')
+                            ->join('clientes', 'cursos.id_creador','=', 'clientes.id')
+                            ->select('cursos.id','cursos.titulo','cursos.descripcion','cursos.instructor','cursos.imagen',
+                                    'cursos.id_creador','clientes.primer_nombre','clientes.primer_apellido')
+                            ->paginate(10);
+                } else {
+                    $cursos = DB::table('cursos')
+                            ->join('clientes', 'cursos.id_creador','=', 'clientes.id')
+                            ->select('cursos.id','cursos.titulo','cursos.descripcion','cursos.instructor','cursos.imagen',
+                                    'cursos.id_creador','clientes.primer_nombre','clientes.primer_apellido')
+                            ->get();
+                }
 
                 if (!empty($cursos)) {
                     $json = array(
@@ -29,6 +48,9 @@ class CursosController extends Controller
                         "total_registros" => count($cursos),
                         "detalles" => $cursos
                     );
+                    
+                    return json_encode($json, true);
+
                 } else {
                     $json = array(
                         "status" => 200,
@@ -85,9 +107,12 @@ class CursosController extends Controller
                     
                     // Si falla la validación
                     if ($validator->fails()) {
+
+                        $errors = $validator->errors();
+                        
                         $json = array(
                             "status" => 404,
-                            "detalle" => "registro con errores: posible título repetido, posible descripción repetida, posible imagen repetida, no se permiten caracteres especiales"
+                            "detalle" => $errors
                         );
                 
                         return json_encode($json, true);
